@@ -1,0 +1,60 @@
+{
+  "package_format": "tin-workflow-package-v1",
+  "definition": {
+    "key": "outreach.roundup_pitch",
+    "title": "Pitch roundup articles for inclusion",
+    "description": "Find published \"best of\" and comparison articles that list competitors but not this product, then draft a personalized email asking the author to add it.",
+    "executor": "codex.procedure",
+    "version": "1.0.0",
+    "schedule_modes": ["on_demand"],
+    "input_schema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["project_id", "product_category", "product_url"],
+      "properties": {
+        "project_id": { "type": "string", "format": "uuid" },
+        "product_category": {
+          "type": "string",
+          "title": "What category of product this is",
+          "maxLength": 200,
+          "x-tin-ui": { "control": "text", "order": 10 }
+        },
+        "product_url": {
+          "type": "string",
+          "title": "Product website URL",
+          "maxLength": 500,
+          "x-tin-ui": { "control": "text", "order": 20 }
+        },
+        "competitor_names": {
+          "type": "array",
+          "items": { "type": "string", "maxLength": 100 },
+          "maxItems": 10,
+          "title": "Known competitor names",
+          "default": [],
+          "x-tin-ui": { "control": "tags", "order": 30 }
+        },
+        "notes": {
+          "type": "string",
+          "title": "Anything else to know",
+          "maxLength": 2000,
+          "default": "",
+          "x-tin-ui": { "control": "textarea", "order": 40 }
+        }
+      }
+    },
+    "procedure": {
+      "prompt_path": "PROMPT.md",
+      "skills_path": "skills",
+      "skill_files": ["skills/roundup-pitch/SKILL.md"],
+      "entry_skill": "roundup-pitch",
+      "workspace": { "kind": "project.state" },
+      "sandbox": { "profile": "isolated", "egress": "fenced", "timeout_seconds": 900 },
+      "output": {
+        "kind": "project.artifact",
+        "path": "outreach/roundup/PITCH_LIST.md",
+        "media_type": "text/markdown",
+        "max_bytes": 250000
+      }
+    }
+  }
+}
